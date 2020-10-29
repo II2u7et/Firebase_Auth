@@ -1,10 +1,47 @@
 import React, { Component } from 'react';
-import {StyleSheet, View} from 'react-native';
-import { Button, Card, CardSection, Input } from './common';
+import {StyleSheet, View, Text} from 'react-native';
+import { Button, Card, CardSection, Input, Spinner } from './common';
+import firebase from 'firebase';
 
 class LoginForm extends Component {
 
-    state = { email:'', password: ''}
+    state = { email:'', password: '', error: '', loading : false}
+
+    onButtonPress(){
+
+        const {email, password} = this.state;
+        console.log(email + ' - ' + password);
+
+        this.setState({error: '', loading: true})
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then(this.onLoginSuccess.bind(this))
+            .catch(() => {
+                firebase.auth().createUserWithEmailAndPassword(email,password)
+                    .then(this.onLoginSuccess.bind(this))
+                    .catch(this.onLoginFail.bind(this));
+            })
+    }
+
+    onLoginSuccess(){
+        this.setState({ email:'', password: '', error: '', loading : false})
+    }
+    onLoginFail(){
+        this.setState({error: 'Either your email or password is wrong.', loading : false})
+    }
+
+    renderButton(){
+        if (this.state.loading) {
+            return  <Spinner size="small"/>
+        }
+
+        return(
+            <Button onPress={this.onButtonPress.bind(this)}>
+                Login
+            </Button>
+        )
+
+    }
 
     render(){
         return (
@@ -28,11 +65,11 @@ class LoginForm extends Component {
                             onChangeText={password => this.setState({password})} 
                             secureTextEntry={true}/>
                     </CardSection>
+
+                    <Text style={style.error}>{this.state.error}</Text>
                         
                     <CardSection>
-                        <Button>
-                            Login
-                        </Button>
+                        {this.renderButton()}
                     </CardSection>
                 </Card>
             </View>
@@ -48,6 +85,13 @@ const style = StyleSheet.create({
         height:450,
         width: null,
        
+    },
+    error: {
+        color: 'red',
+        fontWeight: 'bold',
+        alignSelf: 'center',
+        margin: 2,
+        
     }
 })
 

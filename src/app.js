@@ -6,7 +6,7 @@ import LoginForm from './components/LoginForm';
 
 class App extends Component {
 
-    componentDidUpdate(){
+    componentDidMount(){
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         firebase.initializeApp ({
             apiKey: "AIzaSyDOXb-_nc5r7H5Tu9qHsV2Y9eCMA0HHRWE",
